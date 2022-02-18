@@ -42,7 +42,8 @@ class Level extends Phaser.Scene {
 
 
 		var self = this
-		this.socket = io.connect('http://' + document.domain + ':' + location.port)
+		// this.socket = io.connect('http://' + document.domain + ':' + location.port)
+		this.socket = io()
 		this.otherSprites = this.add.group()
 
 		this.socket.on( 'connect', function() {
