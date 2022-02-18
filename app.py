@@ -47,8 +47,8 @@ def player_moved(movementData, methods=['GET', 'POST']):
 		emit('newPlayerData', players[id], broadcast=True)
 
 
-if __name__ == '__main__':
-	socketio.run(app, debug=False, port=5003)
-
 # if __name__ == '__main__':
-# 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')
+# 	socketio.run(app, debug=True)
+
+if __name__ == '__main__':
+	socketio.run(app, debug=True, host='0.0.0.0')
