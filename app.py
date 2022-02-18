@@ -1,5 +1,4 @@
 
-
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
@@ -7,7 +6,7 @@ from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdfasfadkfha'
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app)
 
 
 players = {}
@@ -48,7 +47,7 @@ def player_moved(movementData, methods=['GET', 'POST']):
 
 
 # if __name__ == '__main__':
-# 	socketio.run(app, debug=True)
+# 	socketio.run(app, debug=True, port=5003)
 
 if __name__ == '__main__':
-	socketio.run(app, debug=True, host='0.0.0.0')
+	socketio.run(app, debug=False, port=5003, host='0.0.0.0')
