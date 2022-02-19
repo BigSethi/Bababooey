@@ -46,11 +46,6 @@ class Level extends Phaser.Scene {
 		this.socket = io()
 		this.otherSprites = this.add.group()
 
-		this.socket.on( 'connect', function() {
-			self.socket.emit( 'userConnect', {
-			  userID: self.socket.id
-			})
-		})
 
 		this.socket.on('currentPlayers', function(players){
 			Object.keys(players).forEach(function(id) {
@@ -75,6 +70,14 @@ class Level extends Phaser.Scene {
 				self.addOtherPlayer(self, player)
 		})
 		
+		this.socket.on('userDisconnected', function(json){
+			self.otherSprites.getChildren().forEach(function(player){
+				if(player.playerID === json.playerID){
+					player.destroy()
+				}
+			})
+		})
+
 		this.socket.on('newPlayerData', function(player){
 			self.otherSprites.getChildren().forEach(function(childSprite){
 				if(childSprite.playerID === player.playerID){

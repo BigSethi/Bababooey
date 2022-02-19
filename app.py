@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
 
@@ -21,19 +21,26 @@ def index():
 def messageReceived(methods=['GET', 'POST']):
 	print('client got message')
 
-@socketio.on('userConnect')
-def user_connected(json, methods=['GET', 'POST']):
-	print(str(json))
+
+@socketio.on('connect')
+def user_connected(methods=['GET', 'POST']):
+	print(str(request.sid))
 	global counter; counter += 1
-	players[json['userID']] = {
+	players[request.sid] = {
 		"x": 200 * counter, 
 		"y": 200, 
 		"dx": 0,
 		"dy": 0, 
-		"playerID": json['userID']
+		"playerID": request.sid
 	}
 	emit('currentPlayers', players, callback=messageReceived)
-	emit('newPlayer', players[json['userID']], broadcast=True)
+	emit('newPlayer', players[request.sid], broadcast=True)
+
+
+@socketio.on('disconnect')
+def user_disconnected():
+	players.pop(request.sid)
+	emit('userDisconnected', {"playerID": request.sid}, broadcast=True)
 
 @socketio.on('playerMoved')
 def player_moved(movementData, methods=['GET', 'POST']):
@@ -46,8 +53,8 @@ def player_moved(movementData, methods=['GET', 'POST']):
 		emit('newPlayerData', players[id], broadcast=True)
 
 
-# if __name__ == '__main__':
-# 	socketio.run(app, debug=True, port=5003)
-
 if __name__ == '__main__':
-	app.run()
+	socketio.run(app, debug=True, port=5003)
+
+# if __name__ == '__main__':
+# 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')
