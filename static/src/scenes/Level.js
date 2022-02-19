@@ -127,10 +127,10 @@ class Level extends Phaser.Scene {
 				})
 
 				this.oldPosition = {
-					x: self.sprite.x,
-					y: self.sprite.y,
-					dx: self.sprite.body.velocity.x,
-					dy: self.sprite.body.velocity.y
+					x: this.sprite.x,
+					y: this.sprite.y,
+					dx: this.sprite.body.velocity.x,
+					dy: this.sprite.body.velocity.y
 				}
 			}
 
