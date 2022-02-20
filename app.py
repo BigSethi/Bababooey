@@ -10,7 +10,6 @@ socketio = SocketIO(app)
 
 
 players = {}
-counter = 0
 
  
 @app.route('/')
@@ -25,9 +24,8 @@ def messageReceived(methods=['GET', 'POST']):
 @socketio.on('connect')
 def user_connected(methods=['GET', 'POST']):
 	print(str(request.sid))
-	global counter; counter += 1
 	players[request.sid] = {
-		"x": 200 * counter, 
+		"x": 200, 
 		"y": 200, 
 		"dx": 0,
 		"dy": 0, 
@@ -54,7 +52,7 @@ def player_moved(movementData, methods=['GET', 'POST']):
 
 
 if __name__ == '__main__':
-	app.run()
+	socketio.run(app, debug=True, port=5003)
 
 # if __name__ == '__main__':
 # 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')

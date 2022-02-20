@@ -6,6 +6,8 @@ class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
 		
+		this.playerController
+		this.cursors
 	}
 
 
@@ -19,7 +21,6 @@ class Level extends Phaser.Scene {
 	}
 
 	create() {
-
 		this.createNinjaAnimations()
 
 		for(let i = -1; i < 4; i++){
@@ -32,13 +33,14 @@ class Level extends Phaser.Scene {
 		const map = this.make.tilemap({key: "map"})
 		const tileset = map.addTilesetImage("woodland", "tileset_basic")
 
-		const ground = map.createLayer("ground", tileset)
-		ground.setCollisionByProperty({collides: true})
+		this.ground = map.createLayer("ground", tileset)
+		this.ground.setCollisionByProperty({collides: true})
+		
 
-		this.matter.world.convertTilemapLayer(ground)
+		// this.physics.world.con
+		// this.physics.world.convertTilemapLayer(ground)
 
 		const {width, height} = this.scale
-
 
 
 		var self = this
@@ -91,33 +93,20 @@ class Level extends Phaser.Scene {
 	
 	}
 
-	update(){
+	update(t, dt){
+
+		if(!this.sprite){
+			return
+		}
 		
-		try {
-			const speed = 6
-			if(this.cursors.left.isDown){
-				this.sprite.flipX = true
-				this.sprite.setVelocityX(-speed)
-				this.sprite.play('walk', true)
-			} else if(this.cursors.right.isDown){
-				this.sprite.flipX = false
-				this.sprite.setVelocityX(speed)
-				this.sprite.play('walk', true)
-			} else {
-				this.sprite.setVelocityX(0)
-				this.sprite.play('idle', true)
-			}
+		this.playerController.update(dt)
+	
+	
 
-			const spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.space)
-			if(spaceJustPressed){
-				this.sprite.setVelocityY(-10)
-				this.sprite.play('jump', true)
-			}
-
-			const x = this.sprite.x
-			const y = this.sprite.y
-			const dx = this.sprite.body.velocity.x
-			const dy = this.sprite.body.velocity.y
+			var x = this.sprite.x
+			var y = this.sprite.y
+			var dx = this.sprite.body.velocity.x
+			var dy = this.sprite.body.velocity.y
 
 
 			if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
@@ -135,29 +124,30 @@ class Level extends Phaser.Scene {
 					dx: this.sprite.body.velocity.x,
 					dy: this.sprite.body.velocity.y
 				}
-			}
+			}	
 
-		} catch (error){
-			console.log("player not added")
-		}
+
 
 	}
 
 	addPlayer(self, player){
 
-		self.sprite = self.matter.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png', {friction: 0})
+		self.sprite = self.physics.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png')
+		self.playerController = new PlayerController(self.sprite, self.cursors)
 		self.sprite.setTint(0x0000ff)
 		self.sprite.setScale(0.4)
-		self.sprite.setFixedRotation()
-		self.cameras.main.startFollow(this.sprite)
+		self.physics.add.collider(self.sprite, self.ground)
+
+		self.cameras.main.startFollow(self.sprite)
 		
 	}
 
 	addOtherPlayer(self, player){
-		const otherSprite = self.matter.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png', {friction: 0})
+		const otherSprite = self.physics.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png')
 		otherSprite.setTint(0xff0000)
 		otherSprite.setScale(0.4)
-		otherSprite.setFixedRotation()
+		self.physics.add.collider(otherSprite, self.ground)
+		// otherSprite.setFixedRotation()
 
 		otherSprite.playerID = player.playerID
 		self.otherSprites.add(otherSprite)

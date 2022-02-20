@@ -11,10 +11,12 @@ window.addEventListener('load', function () {
 			autoCenter: Phaser.Scale.CENTER_BOTH
 		},
 		physics: {
-			default: "matter",
-			matter: {
-				debug: false
+			default: "arcade",
+			arcade: {
+				debug: true,
+				gravity: {y: 350}
 			}
+			
 		}
 	});
 	
