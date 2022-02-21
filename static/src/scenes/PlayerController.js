@@ -42,8 +42,11 @@ class PlayerController{
             this.stateMachine.setState('walk')
         } else if(spaceJustPressed){
             this.stateMachine.setState('jump')
-        }         
-
+        }     
+        
+         if(this.sprite.body.onFloor()){
+            this.sprite.setVelocityX(0)
+        }
     }
 
     walkOnEnter(){
