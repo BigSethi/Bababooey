@@ -92,6 +92,7 @@ class PlayerController{
         }
 
         if(this.sprite.body.onFloor()){
+            this.sprite.setVelocityX(0)
             this.stateMachine.setState('idle')
         }
 
