@@ -101,30 +101,29 @@ class Level extends Phaser.Scene {
 		
 		this.playerController.update(dt)
 	
-	
-
-			var x = this.sprite.x
-			var y = this.sprite.y
-			var dx = this.sprite.body.velocity.x
-			var dy = this.sprite.body.velocity.y
+		var x = this.sprite.x
+		var y = this.sprite.y
+		var dx = this.sprite.body.velocity.x
+		var dy = this.sprite.body.velocity.y
 
 
-			if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
-				this.socket.emit('playerMoved', {
-					x: this.sprite.x,
-				    y: this.sprite.y,
-					dx: this.sprite.body.velocity.x,
-					dy: this.sprite.body.velocity.y,
-					playerID: this.socket.id
-				})
+		if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
+			this.socket.emit('playerMoved', {
+				x: this.sprite.x,
+				y: this.sprite.y,
+				dx: this.sprite.body.velocity.x,
+				dy: this.sprite.body.velocity.y,
+				playerID: this.socket.id
+			})
 
-				this.oldPosition = {
-					x: this.sprite.x,
-					y: this.sprite.y,
-					dx: this.sprite.body.velocity.x,
-					dy: this.sprite.body.velocity.y
+			this.oldPosition = {
+				x: this.sprite.x,
+				y: this.sprite.y,
+				dx: this.sprite.body.velocity.x,
+				dy: this.sprite.body.velocity.y
 				}
 			}	
+			
 
 
 

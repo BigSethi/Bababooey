@@ -30,7 +30,6 @@ class PlayerController{
 
     idleOnEnter(){
         this.sprite.play('idle')
-        this.sprite.setVelocityX(0) 
     }
 
     idleOnUpdate(){
@@ -43,11 +42,7 @@ class PlayerController{
             this.stateMachine.setState('walk')
         } else if(spaceJustPressed){
             this.stateMachine.setState('jump')
-        } else {
-            this.sprite.setVelocityX(0) 
-        }
-        
-        
+        }         
 
     }
 
