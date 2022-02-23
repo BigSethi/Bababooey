@@ -58,7 +58,9 @@ class Level extends Phaser.Scene {
 						x: self.sprite.x,
 						y: self.sprite.y,
 						dx: self.sprite.body.velocity.x,
-						dy: self.sprite.body.velocity.y
+						dy: self.sprite.body.velocity.y,
+						start: self.sprite.getData('start'),
+						flip: self.sprite.getData('flip')
 					}
 
 				} else {
@@ -86,7 +88,14 @@ class Level extends Phaser.Scene {
 					childSprite.setPosition(player.x, player.y)
 					childSprite.setVelocityX(player.dx)
 					childSprite.setVelocityY(player.dy)
-				}
+
+					if(player.start != null){
+						childSprite.play(player.start)
+					}
+
+					childSprite.flipX = player.flip
+
+				}	
 			})
 		})
 		
@@ -98,6 +107,7 @@ class Level extends Phaser.Scene {
 		if(!this.sprite){
 			return
 		}
+		
 		
 		this.playerController.update(dt)
 	
@@ -113,14 +123,20 @@ class Level extends Phaser.Scene {
 				y: this.sprite.y,
 				dx: this.sprite.body.velocity.x,
 				dy: this.sprite.body.velocity.y,
-				playerID: this.socket.id
+				playerID: this.socket.id,
+				start: this.sprite.getData('start'),
+				flip: this.sprite.getData('flip')
 			})
+
+			this.sprite.setData('start', null)
 
 			this.oldPosition = {
 				x: this.sprite.x,
 				y: this.sprite.y,
 				dx: this.sprite.body.velocity.x,
-				dy: this.sprite.body.velocity.y
+				dy: this.sprite.body.velocity.y,
+				start: this.sprite.getData('start'),
+				flip: this.sprite.getData('flip')
 				}
 			}	
 			

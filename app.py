@@ -29,6 +29,8 @@ def user_connected(methods=['GET', 'POST']):
 		"y": 200, 
 		"dx": 0,
 		"dy": 0, 
+		"start": None,
+		"flip": False,
 		"playerID": request.sid
 	}
 	emit('currentPlayers', players, callback=messageReceived)
@@ -47,12 +49,14 @@ def player_moved(movementData, methods=['GET', 'POST']):
 	players[id]['y'] = movementData['y']
 	players[id]['dx'] = movementData['dx']
 	players[id]['dy'] = movementData['dy']
+	players[id]['start'] = movementData['start']
+	players[id]['flip'] = movementData['flip']
 	if(len(players) > 1):
 		emit('newPlayerData', players[id], broadcast=True)
 
 
 if __name__ == '__main__':
-	app.run()
+	socketio.run(app, debug=True, port=5005)
 
 # if __name__ == '__main__':
 # 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')

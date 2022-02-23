@@ -3,7 +3,9 @@ class PlayerController{
     constructor(sprite, cursors){
         this.stateMachine = new StateMachine('PlayerController', this)
         this.sprite  = sprite
+        this.sprite.setData('flip', false)
         this.cursors = cursors
+        
 
         this.stateMachine.addState('idle', {
             onEnter: this.idleOnEnter,
@@ -30,6 +32,7 @@ class PlayerController{
 
     idleOnEnter(){
         this.sprite.play('idle')
+        this.sprite.setData('start', 'idle')
     }
 
     idleOnUpdate(){
@@ -42,15 +45,17 @@ class PlayerController{
             this.stateMachine.setState('walk')
         } else if(spaceJustPressed){
             this.stateMachine.setState('jump')
-        }     
+        }   
         
-         if(this.sprite.body.onFloor()){
+        if(this.sprite.body.onFloor()){
             this.sprite.setVelocityX(0)
         }
+
     }
 
     walkOnEnter(){
         this.sprite.play('walk')
+        this.sprite.setData('start', 'walk')
     }
 
     walkOnUpdate(){
@@ -58,9 +63,11 @@ class PlayerController{
         var speed = 250
         if(this.cursors.left.isDown){
             this.sprite.flipX = true
+            this.sprite.setData('flip', true)
             this.sprite.setVelocityX(-speed)
         } else if(this.cursors.right.isDown){
             this.sprite.flipX = false
+            this.sprite.setData('flip', false)
             this.sprite.setVelocityX(speed) 
         } else { 
             this.stateMachine.setState('idle')
@@ -74,6 +81,7 @@ class PlayerController{
     jumpOnEnter(){
         this.sprite.setVelocityY(-350)
         this.sprite.play('jump')
+        this.sprite.setData('start', 'jump')
         this.stateMachine.states.jump.numJumps = 1
     }
 
@@ -82,15 +90,18 @@ class PlayerController{
         var spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.space)
         if(this.cursors.left.isDown){
             this.sprite.flipX = true
+            this.sprite.setData('flip', true)
             this.sprite.setVelocityX(-speed)
         } else if(this.cursors.right.isDown){
             this.sprite.flipX = false
+            this.sprite.setData('flip', false)
             this.sprite.setVelocityX(speed) 
         } 
 
         if(this.stateMachine.states.jump.numJumps < 2 && spaceJustPressed){
             this.sprite.setVelocityY(-350)
             this.sprite.play('jump')
+            this.sprite.setData('start', 'jump')
             this.stateMachine.states.jump.numJumps += 1
         }
 
