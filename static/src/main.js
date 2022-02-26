@@ -2,8 +2,8 @@
 window.addEventListener('load', function () {
 
 	var game = new Phaser.Game({
-		width: 300,
-		height: 250,
+		width: 400,
+		height: 300,
 		type: Phaser.AUTO,
         backgroundColor: "#242424",
 		scale: {
