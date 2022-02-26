@@ -5,7 +5,7 @@
                 "atlasURL": "static/assets/atlas/atlas.json",
                 "textureURL": "static/assets/atlas/atlas.png",
                 "type": "atlas",
-                "key": "ninja"
+                "key": "sprite"
             },
             {
                 "atlasURL": "static/assets/atlas/atlas-props.json",
@@ -14,27 +14,38 @@
                 "key": "atlas-props"
             },
             {
-                "atlasURL": "static/assets/atlas/test.json",
-                "textureURL": "static/assets/atlas/test.png",
-                "type": "atlas",
-                "key": "test"
-            },
-            {
-                "url": "static/assets/maps/map.json",
+                "url": "static/assets/maps/pixel_map.json",
                 "type": "tilemapTiledJSON",
-                "key": "map"
+                "key": "pixel_map"
             },
             {
-                "url": "static/assets/enviroment/tileset_basic.png",
+                "url": "static/assets/enviroment/pixel_tileset.png",
                 "type": "image",
-                "key": "tileset_basic"
+                "key": "pixel_tileset"
+            }, 
+            {
+                "url": "static/assets/enviroment/clouds.png",
+                "type": "image",
+                "key": "clouds"
+            }, 
+            {
+                "atlasURL": "static/assets/atlas/bodies.json",
+                "textureURL": "static/assets/atlas/bodies.png",
+                "type": "aseprite",
+                "key": "torso"
             },
             {
-                "url": "static/assets/enviroment/woodland_background.png",
-                "type": "image",
-                "key": "background"
+                "atlasURL": "static/assets/atlas/guns.json",
+                "textureURL": "static/assets/atlas/guns.png",
+                "type": "aseprite",
+                "key": "guns"
+            },
+            {
+                "atlasURL": "static/assets/atlas/legs.json",
+                "textureURL": "static/assets/atlas/legs.png",
+                "type": "aseprite",
+                "key": "legs"
             }
-
         ]
     },
     "meta": {

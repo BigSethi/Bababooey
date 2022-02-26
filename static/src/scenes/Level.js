@@ -1,5 +1,4 @@
 
-
 class Level extends Phaser.Scene {
 
 
@@ -8,11 +7,25 @@ class Level extends Phaser.Scene {
 		
 		this.playerController
 		this.cursors
+
 	}
 
-
 	init(){
-		this.cursors = this.input.keyboard.createCursorKeys()
+		this.cursors = {
+			left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+			right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+			up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+			down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+			one: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
+			two: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
+			three: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
+			four: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR),
+			fire: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)
+
+		}
+
+		
+
 	}
 
 	preload(){
@@ -21,61 +34,54 @@ class Level extends Phaser.Scene {
 	}
 
 	create() {
-		this.createNinjaAnimations()
 
 		for(let i = -1; i < 4; i++){
-			for(let j = -1; j < 2; j++){
-				const image = this.add.image(i*1200, j*800, 'background')
+			for(let j = -1; j < 4; j++){
+				const image = this.add.image(i*720, j*480, 'clouds')
 				image.setOrigin(0,0)
 			}
 		}
-
-		const map = this.make.tilemap({key: "map"})
-		const tileset = map.addTilesetImage("woodland", "tileset_basic")
+		const map = this.make.tilemap({key: "pixel_map"})
+		const tileset = map.addTilesetImage("pixel", "pixel_tileset")
 
 		this.ground = map.createLayer("ground", tileset)
 		this.ground.setCollisionByProperty({collides: true})
 		
 
-		// this.physics.world.con
-		// this.physics.world.convertTilemapLayer(ground)
-
-		const {width, height} = this.scale
-
 
 		var self = this
-		// this.socket = io.connect('http://' + document.domain + ':' + location.port)
 		this.socket = io()
-		this.otherSprites = this.add.group()
+		this.otherPlayers = this.add.group()
 
 
-		this.socket.on('currentPlayers', function(players){
-			Object.keys(players).forEach(function(id) {
-				if(players[id].playerID === self.socket.id){
-					self.addPlayer(self, players[id])
+		this.socket.on('currentPlayers', (players) => {
+			Object.keys(players).forEach((id) => {
+				if(players[id].playerID === this.socket.id){
+					this.addPlayer(players[id])
 
-					self.oldPosition = {
-						x: self.sprite.x,
-						y: self.sprite.y,
-						dx: self.sprite.body.velocity.x,
-						dy: self.sprite.body.velocity.y,
-						start: self.sprite.getData('start'),
-						flip: self.sprite.getData('flip')
-					}
+					// this.oldPosition = {
+					// 	x: this.player.x,
+					// 	y: this.player.y,
+					// 	dx: this.player.body.velocity.x,
+					// 	dy: this.player.body.velocity.y,
+					// 	startQueue: this.player.getData('startQueue'),
+					// 	flip: this.player.getData('flip')
+						
+					// }
 
 				} else {
-					self.addOtherPlayer(self, players[id])
+					this.addOtherPlayer(players[id])
 				}
 			})
 		})
 
 		this.socket.on('newPlayer', function(player){
 			if(player.playerID != self.socket.id)
-				self.addOtherPlayer(self, player)
+				self.addOtherPlayer(player)
 		})
 		
 		this.socket.on('userDisconnected', function(json){
-			self.otherSprites.getChildren().forEach(function(player){
+			self.otherPlayers.getChildren().forEach(function(player){
 				if(player.playerID === json.playerID){
 					player.destroy()
 				}
@@ -83,147 +89,88 @@ class Level extends Phaser.Scene {
 		})
 
 		this.socket.on('newPlayerData', function(player){
-			self.otherSprites.getChildren().forEach(function(childSprite){
-				if(childSprite.playerID === player.playerID){
-					childSprite.setPosition(player.x, player.y)
-					childSprite.setVelocityX(player.dx)
-					childSprite.setVelocityY(player.dy)
+			self.otherPlayers.getChildren().forEach(function(childPlayer){
+				if(childPlayer.getData('playerID') === player.playerID){
+					childPlayer.setPosition(player.x, player.y)
+					childPlayer.body.setVelocityX(player.dx)
+					childPlayer.body.setVelocityY(player.dy)
 
-					if(player.start != null){
-						childSprite.play(player.start)
-					}
+					childPlayer.setFlip(player.flip)
+					childPlayer.setEquip(player.equip)
+					childPlayer.getByName('gun').setRotation(player.gunRotation)
 
-					childSprite.flipX = player.flip
+					player.startQueue.forEach((startEvent) => {
+						childPlayer.play(startEvent)
+					})
+						
 
 				}	
 			})
 		})
-		
+
 	
 	}
 
 	update(t, dt){
 
-		if(!this.sprite){
+		if(!this.player){
 			return
 		}
 		
 		
 		this.playerController.update(dt)
 	
-		var x = this.sprite.x
-		var y = this.sprite.y
-		var dx = this.sprite.body.velocity.x
-		var dy = this.sprite.body.velocity.y
+		// var x = this.player.x
+		// var y = this.player.y
+		// var dx = this.player.body.velocity.x
+		// var dy = this.player.body.velocity.y
 
 
-		if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
+		// if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
 			this.socket.emit('playerMoved', {
-				x: this.sprite.x,
-				y: this.sprite.y,
-				dx: this.sprite.body.velocity.x,
-				dy: this.sprite.body.velocity.y,
+				x: this.player.x,
+				y: this.player.y,
+				dx: this.player.body.velocity.x,
+				dy: this.player.body.velocity.y,
 				playerID: this.socket.id,
-				start: this.sprite.getData('start'),
-				flip: this.sprite.getData('flip')
+				startQueue: this.player.getData('startQueue'),
+				gunRotation: this.player.getByName('gun').rotation,
+				equip: this.player.getData('equip'),
+				flip: this.player.getData('flip')
 			})
 
-			this.sprite.setData('start', null)
+			this.player.setData('startQueue', [])
 
-			this.oldPosition = {
-				x: this.sprite.x,
-				y: this.sprite.y,
-				dx: this.sprite.body.velocity.x,
-				dy: this.sprite.body.velocity.y,
-				start: this.sprite.getData('start'),
-				flip: this.sprite.getData('flip')
-				}
-			}	
+			// this.oldPosition = {
+			// 	x: this.player.x,
+			// 	y: this.player.y,
+			// 	dx: this.player.body.velocity.x,
+			// 	dy: this.player.body.velocity.y,
+			// 	start: this.player.getData('start'),
+			// 	flip: this.player.getData('flip')
+			// 	}
+			// }	
 			
 
 
 
 	}
 
-	addPlayer(self, player){
+	addPlayer(player){
+		this.player = new Player(this, player.x, player.y)
+		
+		this.playerController = new PlayerController(this.player, this.cursors, this)
 
-		self.sprite = self.physics.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png')
-		self.playerController = new PlayerController(self.sprite, self.cursors)
-		self.sprite.setTint(0x0000ff)
-		self.sprite.setScale(0.4)
-		self.physics.add.collider(self.sprite, self.ground)
-
-		self.cameras.main.startFollow(self.sprite)
 		
 	}
 
-	addOtherPlayer(self, player){
-		const otherSprite = self.physics.add.sprite(player.x, player.y, 'ninja', 'Standing/NinjaCat_idle_01.png')
-		otherSprite.setTint(0xff0000)
-		otherSprite.setScale(0.4)
-		self.physics.add.collider(otherSprite, self.ground)
-		// otherSprite.setFixedRotation()
+	addOtherPlayer(player){
+		const otherPlayer = new Opponent(this, player.x, player.y)
 
-		otherSprite.playerID = player.playerID
-		self.otherSprites.add(otherSprite)
+		otherPlayer.setData('playerID', player.playerID)
+		this.otherPlayers.add(otherPlayer)
 	}
 
-	createNinjaAnimations(){
-		this.anims.create(
-			{
-				repeat: -1,
-				key: "idle",
-				frameRate: 1,
-				frames: this.anims.generateFrameNames('ninja', {
-					prefix: "Standing/NinjaCat_idle_0",
-					start: 1,
-					end: 2,
-					suffix: ".png"
-				})
-			}
-		)
-		
-
-		this.anims.create(
-			{
-				repeat: 0,
-				key: "jump",
-				frameRate: 10,
-				frames: this.anims.generateFrameNames('ninja', {
-					prefix: "Jump/NinjaCat_jump_0",
-					start: 1,
-					end: 6,
-					suffix: ".png"
-				})
-			}
-		)
-		this.anims.create(
-			{
-				repeat: 0,
-				key: "attack_kick",
-				frameRate: 5,
-				frames: this.anims.generateFrameNames('ninja', {
-					prefix: "Attack_kick/NinjaCat_attack_kick_0",
-					start: 1,
-					end: 4,
-					suffix: ".png"
-				})
-			}
-		)
-
-		this.anims.create(
-			{
-				repeat: -1,
-				key: "walk",
-				frameRate: 10,
-				frames: this.anims.generateFrameNames('ninja', {
-					prefix: "Walk/NinjaCat_walk_0",
-					start: 1,
-					end: 8,
-					suffix: ".png"
-				})
-			}
-		)
-	}
+	
 }
 
