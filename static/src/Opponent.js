@@ -20,6 +20,8 @@ class Opponent extends Phaser.GameObjects.Container{
        
         scene.physics.add.collider(this, scene.ground)
         scene.add.existing(this)
+        
+        this.setScale(2)
     	
 
         this.setData('startQueue', [])
