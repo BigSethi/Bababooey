@@ -24,7 +24,7 @@
                 "key": "pixel_tileset"
             }, 
             {
-                "url": "static/assets/enviroment/Clouds.png",
+                "url": "static/assets/enviroment/clouds.png",
                 "type": "image",
                 "key": "clouds"
             }, 

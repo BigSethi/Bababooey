@@ -3,6 +3,7 @@ class Player extends Phaser.GameObjects.Container{
         super(scene, x, y)
 
         this.bodyWidth = 6
+        this.scaleFactor = 2
 
         scene.anims.createFromAseprite('torso')
         scene.anims.createFromAseprite('legs')
@@ -26,6 +27,8 @@ class Player extends Phaser.GameObjects.Container{
         this.setData('startQueue', [])
         this.setData('flip', false)
         this.setEquip('fire')
+
+        this.setScale(this.scaleFactor, this.scaleFactor)
        
     }
 
@@ -67,12 +70,12 @@ class Player extends Phaser.GameObjects.Container{
     setFlip(flip){
         
         if(flip){
-            this.setScale(-1, 1)
+            this.setScale(-this.scaleFactor, this.scaleFactor)
             this.body.setOffset(this.bodyWidth, 0)
             this.setData('flip', true)
 
         } else if(!flip){
-            this.setScale(1, 1)
+            this.setScale(this.scaleFactor, this.scaleFactor)
             this.body.setOffset(0, 0)
             this.setData('flip', false)
         }
