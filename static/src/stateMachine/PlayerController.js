@@ -155,7 +155,7 @@ class PlayerController{
     }
 
     jumpOnEnter(){
-        this.player.body.setVelocityY(-150)
+        this.player.body.setVelocityY(-250)
         this.player.play({key: 'legs_jump', repeat: 0})
         this.stateMachine.states.jump.numJumps = 1
     }
@@ -172,7 +172,7 @@ class PlayerController{
         } 
 
         if(this.stateMachine.states.jump.numJumps < 2 && spaceJustPressed){
-            this.player.body.setVelocityY(-150)
+            this.player.body.setVelocityY(-250)
             this.player.play({key: 'legs_jump', repeat: 0})
             this.stateMachine.states.jump.numJumps += 1
         }
