@@ -83,6 +83,7 @@ class Level extends Phaser.Scene {
 		this.socket.on('userDisconnected', (json) => {
 			self.otherPlayers.getChildren().forEach((player) => {
 				if(player.getData('playerID') === json.playerID){
+					player.removeAll()
 					player.destroy()
 				}
 			})

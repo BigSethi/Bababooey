@@ -42,7 +42,8 @@ def user_connected(methods=['GET', 'POST']):
 @socketio.on('disconnect')
 def user_disconnected():
 	players.pop(request.sid)
-	emit('userDisconnected', {"playerID": request.sid}, broadcast=True)
+	emit('userDisconnected', {"playerID": request.sid}, broadcast = True)
+	
 
 @socketio.on('playerMoved')
 def player_moved(movementData, methods=['GET', 'POST']):
@@ -60,7 +61,7 @@ def player_moved(movementData, methods=['GET', 'POST']):
 
 
 if __name__ == '__main__':
-	app.run()
+	socketio.run(app, debug=True, port=5005)
 
 # if __name__ == '__main__':
 # 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')
