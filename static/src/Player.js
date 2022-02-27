@@ -64,8 +64,7 @@ class Player extends Phaser.GameObjects.Container{
         }
 
         this.gun.setPosition(this.gun.displayWidth * (this.gun.originX - 0.5), this.gun.displayHeight * (this.gun.originY - 0.5))
-        this.play({key: "gun_idle", repeat: 0})
-        this.play({key: "torso_idle", repeat: 0})
+      
     }
 
     setFlip(flip){
