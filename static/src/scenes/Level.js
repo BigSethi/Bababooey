@@ -36,7 +36,7 @@ class Level extends Phaser.Scene {
 	create() {
 
 		for(let i = -1; i < 4; i++){
-			for(let j = -1; j < -2; j++){
+			for(let j = -1; j < 4; j++){
 				const image = this.add.image(i*720, j*480, 'clouds')
 				image.setOrigin(0,0)
 			}
