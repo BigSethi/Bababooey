@@ -13,7 +13,6 @@ class Player extends Phaser.GameObjects.Container{
         this.torso = scene.add.sprite(0, 0, "torso", "0").setName('torso')
         this.gun = scene.add.sprite(0, 0, "guns", "9").setName('gun')
 
-
         this.add([this.legs, this.torso, this.gun])
         this.setSize(this.bodyWidth, 24)
         scene.physics.world.enable(this)
@@ -51,7 +50,7 @@ class Player extends Phaser.GameObjects.Container{
                 this.removeAll()
                 this.gun.setOrigin(0.5, 0.57)
                 this.add([this.legs, this.torso, this.gun])
-                this.gun.setData({'upperBound': 0.5, 'lowerBound': -0.5})
+                this.gun.setData({'upperBound': 0.3, 'lowerBound': -0.3})
                 break;
             case "rifle":
                 this.removeAll()
@@ -65,6 +64,8 @@ class Player extends Phaser.GameObjects.Container{
         }
 
         this.gun.setPosition(this.gun.displayWidth * (this.gun.originX - 0.5), this.gun.displayHeight * (this.gun.originY - 0.5))
+        this.play({key: "gun_idle", repeat: 0})
+        this.play({key: "torso_idle", repeat: 0})
     }
 
     setFlip(flip){

@@ -111,8 +111,7 @@ class PlayerController{
 
     idleOnEnter(){
         this.player.play({key: 'legs_idle', repeat: -1})
-        this.player.play({key: 'gun_idle', repeat: -1})
-        this.player.play({key: 'torso_idle', repeat: -1})
+        
     }
 
     idleOnUpdate(){

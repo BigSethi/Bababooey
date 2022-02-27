@@ -36,7 +36,7 @@ class Level extends Phaser.Scene {
 	create() {
 
 		for(let i = -1; i < 4; i++){
-			for(let j = -1; j < 4; j++){
+			for(let j = -1; j < -2; j++){
 				const image = this.add.image(i*720, j*480, 'clouds')
 				image.setOrigin(0,0)
 			}
@@ -80,9 +80,9 @@ class Level extends Phaser.Scene {
 				self.addOtherPlayer(player)
 		})
 		
-		this.socket.on('userDisconnected', function(json){
-			self.otherPlayers.getChildren().forEach(function(player){
-				if(player.playerID === json.playerID){
+		this.socket.on('userDisconnected', (json) => {
+			self.otherPlayers.getChildren().forEach((player) => {
+				if(player.getData('playerID') === json.playerID){
 					player.destroy()
 				}
 			})
