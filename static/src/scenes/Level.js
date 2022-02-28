@@ -10,7 +10,7 @@ class Level extends Phaser.Scene {
 
 	}
 
-	init(){
+	init(data){
 		this.cursors = {
 			left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
 			right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
@@ -24,6 +24,8 @@ class Level extends Phaser.Scene {
 
 		}
 
+		this.room_id = data.id
+		
 		
 
 	}
@@ -50,8 +52,12 @@ class Level extends Phaser.Scene {
 
 
 		var self = this
-		this.socket = io()
+		//this.socket = io()
+		this.socket = this.registry.get('socket');
 		this.otherPlayers = this.add.group()
+
+		console.log(this.room_id)
+		this.socket.emit('switchedScenes', {id: this.room_id});
 
 
 		this.socket.on('currentPlayers', (players) => {
@@ -137,7 +143,8 @@ class Level extends Phaser.Scene {
 				startQueue: this.player.getData('startQueue'),
 				gunRotation: this.player.getByName('gun').rotation,
 				equip: this.player.getData('equip'),
-				flip: this.player.getData('flip')
+				flip: this.player.getData('flip'),
+				id: this.room_id
 			})
 
 			this.player.setData('startQueue', [])

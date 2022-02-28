@@ -21,11 +21,16 @@ window.addEventListener('load', function () {
 
 		render: {
 			pixelArt: true
-		}
+		},
+
+		//Waiting Room
+		scene: [TitleScreen, Level]
 	});
 	
 	
-	game.scene.add("Level", Level, true);
+	
+	//game.scene.add("TitleScreen", TitleScreen, true);
+	//game.scene.add("Level", Level, false);
 	
 	
 });
