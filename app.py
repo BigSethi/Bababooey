@@ -26,6 +26,14 @@ def find_room(id):
 	print(filter_list)
 	return filter_list[0] if not filter_list == [] else None
 
+def find_players_in_room(id, player_id):
+	players_in_room = []
+	print(players)
+	for player in players:
+		if players[player]['id'] == id and not player == player_id:
+			players_in_room.append(players[player])
+	return players_in_room
+
  
 @app.route('/')
 def index():
@@ -74,7 +82,7 @@ def player_moved(movementData, methods=['GET', 'POST']):
 	players[id]['gunRotation'] = movementData['gunRotation']
 	players[id]['equip'] = movementData['equip']
 	if(len(players) > 1):
-		emit('newPlayerData', players[id], room=movementData['id'])
+		emit('newPlayerData', players[id], broadcast=True, room=movementData['id'])
 
 @socketio.on('connectToRoom')
 def connect_to_room(data, methods=['GET', 'POST']):
@@ -83,7 +91,7 @@ def connect_to_room(data, methods=['GET', 'POST']):
 	print(room)
 	if(room):
 		if(len(room['users']) == 2):
-			print('ItThinks Room is full')
+			print('It thinks Room is full')
 			emit('unsuccessfulRoomConnection', {'description': 'The room you are trying to enter is currently full'})
 		else:
 			print('roomGood')
@@ -111,8 +119,9 @@ def switched_scenes(data, methods=['GET', 'POST']):
 		"id": data['id']
 	}
 	# , room=data['id']
-	emit('currentPlayers', players, room=data['id'])
-	emit('newPlayer', players[request.sid], room=data['id'])
+	print(find_players_in_room(data['id'], request.sid))
+	emit('currentPlayers', players)
+	emit('newPlayer', players[request.sid], room=data['id'], skip_sid=request.sid)
 
 
 
