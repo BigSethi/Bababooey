@@ -48,7 +48,6 @@ class Level extends Phaser.Scene {
 		this.ground.setCollisionByProperty({collides: true})
 		
 
-
 		var self = this
 		this.socket = io()
 		this.otherPlayers = this.add.group()
@@ -58,16 +57,6 @@ class Level extends Phaser.Scene {
 			Object.keys(players).forEach((id) => {
 				if(players[id].playerID === this.socket.id){
 					this.addPlayer(players[id])
-
-					// this.oldPosition = {
-					// 	x: this.player.x,
-					// 	y: this.player.y,
-					// 	dx: this.player.body.velocity.x,
-					// 	dy: this.player.body.velocity.y,
-					// 	startQueue: this.player.getData('startQueue'),
-					// 	flip: this.player.getData('flip')
-						
-					// }
 
 				} else {
 					this.addOtherPlayer(players[id])
@@ -83,10 +72,24 @@ class Level extends Phaser.Scene {
 		this.socket.on('userDisconnected', (json) => {
 			self.otherPlayers.getChildren().forEach((player) => {
 				if(player.getData('playerID') === json.playerID){
+					player.healthUI.destroy()
+					player.healthBarUI.destroy()
 					player.removeAll([true, true, true])
 					player.destroy()
 				}
 			})
+		})
+
+		this.socket.on('newHitData', (data) => {
+			if(data.pID === this.socket.id){
+				this.player.hit(data.t)
+			} else {
+				this.otherPlayers.getChildren().forEach((childPlayer) => {
+					if(childPlayer.getData('playerID') === data.pID){
+						childPlayer.hit(data.t)
+					}
+				})
+			}
 		})
 
 		this.socket.on('newPlayerData', function(player){
@@ -101,9 +104,14 @@ class Level extends Phaser.Scene {
 					childPlayer.getByName('gun').setRotation(player.gunRotation)
 
 					player.startQueue.forEach((startEvent) => {
-						childPlayer.play(startEvent)
-					})
+						if(startEvent == 'shoot'){
+							childPlayer.shoot()
+						} else {
+							childPlayer.play(startEvent)
+						}
 						
+					})
+					
 
 				}	
 			})
@@ -121,13 +129,7 @@ class Level extends Phaser.Scene {
 		
 		this.playerController.update(dt)
 	
-		// var x = this.player.x
-		// var y = this.player.y
-		// var dx = this.player.body.velocity.x
-		// var dy = this.player.body.velocity.y
-
-
-		// if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
+		
 			this.socket.emit('playerMoved', {
 				x: this.player.x,
 				y: this.player.y,
@@ -142,15 +144,6 @@ class Level extends Phaser.Scene {
 
 			this.player.setData('startQueue', [])
 
-			// this.oldPosition = {
-			// 	x: this.player.x,
-			// 	y: this.player.y,
-			// 	dx: this.player.body.velocity.x,
-			// 	dy: this.player.body.velocity.y,
-			// 	start: this.player.getData('start'),
-			// 	flip: this.player.getData('flip')
-			// 	}
-			// }	
 			
 
 
