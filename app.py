@@ -71,7 +71,7 @@ def hit_player(hitData, methods=['GET', 'POST']):
 
 
 if __name__ == '__main__':
-	socketio.run(app, debug=True, port=5007)
+	app.run()
 
 # if __name__ == '__main__':
 # 	socketio.run(app, debug=True, port=5003, host='0.0.0.0')
