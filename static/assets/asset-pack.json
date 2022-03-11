@@ -8,10 +8,10 @@
                 "key": "sprite"
             },
             {
-                "atlasURL": "static/assets/atlas/atlas-props.json",
-                "textureURL": "static/assets/atlas/atlas-props.png",
+                "atlasURL": "static/assets/atlas/ui.json",
+                "textureURL": "static/assets/atlas/ui.png",
                 "type": "atlas",
-                "key": "atlas-props"
+                "key": "ui"
             },
             {
                 "url": "static/assets/maps/pixel_map.json",
@@ -45,6 +45,12 @@
                 "textureURL": "static/assets/atlas/legs.png",
                 "type": "aseprite",
                 "key": "legs"
+            }, 
+            {
+                "atlasURL": "static/assets/atlas/bullets.json",
+                "textureURL": "static/assets/atlas/bullets.png",
+                "type": "aseprite",
+                "key": "bullets"
             }
         ]
     },

@@ -1,38 +1,37 @@
+var game = new Phaser.Game({
+	width: 400,
+	height: 300,
+	parent: 'main',
+	type: Phaser.AUTO,
+	backgroundColor: "#242424",
+	scale: {
+		mode: Phaser.Scale.FIT,
+		autoCenter: Phaser.Scale.CENTER_BOTH
+	},
+	physics: {
+		default: "arcade",
+		arcade: {
+			debug: false,
+			gravity: {y: 400}
+		}
 
-window.addEventListener('load', function () {
+	},
 
-	var game = new Phaser.Game({
-		width: 400,
-		height: 300,
-		type: Phaser.AUTO,
-        backgroundColor: "#242424",
-		scale: {
-			mode: Phaser.Scale.FIT,
-			autoCenter: Phaser.Scale.CENTER_BOTH
-		},
-		physics: {
-			default: "arcade",
-			arcade: {
-				debug: false,
-				gravity: {y: 400}
-			}
+	render: {
+		pixelArt: true
+	},
 	
-		},
+	dom: {
+		createContainer: true
+	},
 
-		render: {
-			pixelArt: true
-		},
-
-		//Waiting Room
-		scene: [TitleScreen, Level]
-	});
-	
-	
-	
-	//game.scene.add("TitleScreen", TitleScreen, true);
-	//game.scene.add("Level", Level, false);
-	
-	
+	scene: [TitleScreen, Level]
 });
+	
+	
+	
+	
+	
+
 
 

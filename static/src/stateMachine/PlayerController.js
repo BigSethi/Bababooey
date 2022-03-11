@@ -5,6 +5,7 @@ class PlayerController{
         this.scene = scene
         this.player  = player
         this.cursors = cursors
+        this.lastFire = 0
 
         let {width, height} = scene.scale
 
@@ -20,18 +21,34 @@ class PlayerController{
 		})
 
 
-		scene.input.on('pointerdown', (pointer) => {
-            console.log("go")
-            this.player.play({key: "gun_fire", repeat: -1, frameRate: 15}, true)
-            this.player.play({key: "torso_fire", repeat: -1, frameRate: 15}, true)
+        let gun = player.getByName('gun')
+
+		scene.input.on('pointerdown', (pointer) => {        
+            if(scene.time.now - this.lastFire >=  gun.getData('fireWait') && player.bullets[player.getData('equip')].in > 0){
+                this.player.play({key: "gun_fire", repeat: -1}, true)
+                this.lastFire = scene.time.now
+            }
+   
 		})
 
-        scene.input.on('pointerup', (pointer) => {
-            console.log("go")
-            this.player.play({key: "gun_idle", repeat: 0, frameRate: 10}, true)
-            this.player.play({key: "torso_idle", repeat: 0, frameRate: 10}, true)
-		})
-        
+
+       
+
+       gun.on('animationrepeat', () => {
+        if(gun.getData("isFiring")){
+                if(gun.getData("isAutomatic") && !scene.input.activePointer.primaryDown){
+                    this.player.play({key: "gun_idle", repeat: -1}, true)
+                    gun.setData("isFiring", false)
+            
+                } else if(!gun.getData('isAutomatic')){
+                    this.player.play({key: "gun_idle", repeat: -1}, true)
+                    gun.setData("isFiring", false)
+                } 
+                this.player.shoot()
+            }
+        })
+
+    
 
         this.stateMachine.addState('idle', {
             onEnter: this.idleOnEnter,
@@ -61,22 +78,22 @@ class PlayerController{
             this.player.setFlip(false)
         }
 
+        if(Phaser.Input.Keyboard.JustDown(this.cursors.reload)){
+            this.player.reload()
+        }
+
         if(Phaser.Input.Keyboard.JustDown(this.cursors.one)){
             this.player.setEquip('fire')
             this.player.play({key: "gun_idle", repeat: -1})
-            this.player.play({key: "torso_idle", repeat: -1})
         } else if(Phaser.Input.Keyboard.JustDown(this.cursors.two)){
             this.player.setEquip('alien')
             this.player.play({key: "gun_idle", repeat: -1})
-            this.player.play({key: "torso_idle", repeat: -1})
         } else if(Phaser.Input.Keyboard.JustDown(this.cursors.three)){
             this.player.setEquip('laser')
             this.player.play({key: "gun_idle", repeat: -1})
-            this.player.play({key: "torso_idle", repeat: -1})
         } else if(Phaser.Input.Keyboard.JustDown(this.cursors.four)){
             this.player.setEquip('rifle')
             this.player.play({key: "gun_idle", repeat: -1})
-            this.player.play({key: "torso_idle", repeat: -1})
         }
 
     
@@ -88,22 +105,17 @@ class PlayerController{
 
         let rotation = Math.atan(deltaY / deltaX)
 
-     
+        let gun = this.player.getByName('gun')
 
-        if(rotation >= this.player.getByName('gun').getData('upperBound')){
-            rotation = this.player.getByName('gun').getData('upperBound')
-        } else if (rotation <= this.player.getByName('gun').getData('lowerBound')){
-            rotation = this.player.getByName('gun').getData('lowerBound')
+        if(rotation >= gun.getData('upperBound')){
+            rotation = gun.getData('upperBound')
+        } else if (rotation <= gun.getData('lowerBound')){
+            rotation = gun.getData('lowerBound')
         }
 
       
-        this.player.getByName('gun').setRotation(-rotation)
+        gun.setRotation(-rotation)
         
-
-        // if(Phaser.Input.Pointer.isDown){
-        //     this.player.play({key: "gun_fire", repeat: 0, frameRate: 15}, true)
-        //     this.player.play({key: "torso_fire", repeat: 0, frameRate: 15}, true)
-        // } 
         
         
 
@@ -116,7 +128,7 @@ class PlayerController{
 
     idleOnUpdate(){
 
-        var spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
+        let spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.cursors.space)
 
         if(this.cursors.left.isDown){
             this.stateMachine.setState('walk')
@@ -138,7 +150,7 @@ class PlayerController{
     }
 
     walkOnUpdate(){
-        var spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
+        let spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.cursors.space)
         var speed = 100
         if(this.cursors.left.isDown){
             this.player.body.setVelocityX(-speed)
@@ -161,7 +173,7 @@ class PlayerController{
 
     jumpOnUpdate(){
         var speed = 100
-        var spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
+        let spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.cursors.space)
         if(this.cursors.left.isDown){
           
             this.player.body.setVelocityX(-speed)

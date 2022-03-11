@@ -4,9 +4,11 @@ class Level extends Phaser.Scene {
 
 	constructor() {
 		super("Level");
+
 		
 		this.playerController
 		this.cursors
+		this.player
 
 	}
 
@@ -20,13 +22,13 @@ class Level extends Phaser.Scene {
 			two: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
 			three: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
 			four: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR),
-			fire: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)
+			space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+			reload: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
 
 		}
 
-		this.room_id = data.id
-		
-		
+		this.room = data.room
+		this.username = data.username
 
 	}
 
@@ -36,7 +38,7 @@ class Level extends Phaser.Scene {
 	}
 
 	create() {
-
+		
 		for(let i = -1; i < 4; i++){
 			for(let j = -1; j < 4; j++){
 				const image = this.add.image(i*720, j*480, 'clouds')
@@ -48,16 +50,13 @@ class Level extends Phaser.Scene {
 
 		this.ground = map.createLayer("ground", tileset)
 		this.ground.setCollisionByProperty({collides: true})
+
+		this.leaderboard = []
 		
 
-
 		var self = this
-		//this.socket = io()
 		this.socket = this.registry.get('socket');
-		this.otherPlayers = this.add.group()
-
-		console.log(this.room_id)
-		this.socket.emit('switchedScenes', {id: this.room_id});
+		this.players = this.add.group()
 
 
 		this.socket.on('currentPlayers', (players) => {
@@ -65,38 +64,60 @@ class Level extends Phaser.Scene {
 				if(players[id].playerID === this.socket.id){
 					this.addPlayer(players[id])
 
-					// this.oldPosition = {
-					// 	x: this.player.x,
-					// 	y: this.player.y,
-					// 	dx: this.player.body.velocity.x,
-					// 	dy: this.player.body.velocity.y,
-					// 	startQueue: this.player.getData('startQueue'),
-					// 	flip: this.player.getData('flip')
-						
-					// }
-
 				} else {
 					this.addOtherPlayer(players[id])
 				}
+
+				this.addToLeaderboard()
+				this.drawLeaderboard()
 			})
 		})
 
-		this.socket.on('newPlayer', function(player){
-			if(player.playerID != self.socket.id)
-				self.addOtherPlayer(player)
+		this.socket.on('newPlayer', (player) => {
+			if(player.playerID != this.socket.id){
+				this.addOtherPlayer(player)
+				
+				this.addToLeaderboard()
+				this.drawLeaderboard()
+			}
+	
 		})
 		
+		this.socket.emit('connectToRoom', {room: this.room, username: this.username}) 
+
 		this.socket.on('userDisconnected', (json) => {
-			self.otherPlayers.getChildren().forEach((player) => {
+			self.players.getChildren().forEach((player) => {
 				if(player.getData('playerID') === json.playerID){
-					player.removeAll()
+					player.healthUI.destroy()
+					player.healthBarUI.destroy()
+					player.removeAll([true, true, true])
 					player.destroy()
 				}
 			})
 		})
 
+		this.socket.on('newHitData', (data) => {
+			if(data.hID === this.socket.id){
+				if(this.player.takeDamage(data.t)){
+					this.socket.emit('iDied', data.sID)
+				}
+				
+			} 
+		})
+
+		this.socket.on('newKillData', (killer) => {
+			this.players.getChildren().forEach((player) => {
+				if(player.getData('playerID') == killer){
+					player.data.values.kills += 1
+					console.log(player.getData('name'))
+					console.log(player.data.values.kills)
+					this.drawLeaderboard(this)
+				}
+			})
+		})
+
 		this.socket.on('newPlayerData', function(player){
-			self.otherPlayers.getChildren().forEach(function(childPlayer){
+			self.players.getChildren().forEach(function(childPlayer){
 				if(childPlayer.getData('playerID') === player.playerID){
 					childPlayer.setPosition(player.x, player.y)
 					childPlayer.body.setVelocityX(player.dx)
@@ -107,9 +128,15 @@ class Level extends Phaser.Scene {
 					childPlayer.getByName('gun').setRotation(player.gunRotation)
 
 					player.startQueue.forEach((startEvent) => {
-						childPlayer.play(startEvent)
-					})
+
+						if(startEvent == 'shoot'){
+							childPlayer.shoot()
+						} else {
+							childPlayer.play(startEvent)
+						}
 						
+					})
+					
 
 				}	
 			})
@@ -127,13 +154,7 @@ class Level extends Phaser.Scene {
 		
 		this.playerController.update(dt)
 	
-		// var x = this.player.x
-		// var y = this.player.y
-		// var dx = this.player.body.velocity.x
-		// var dy = this.player.body.velocity.y
-
-
-		// if(this.oldPosition.x != x || this.oldPosition.y != y || this.oldPosition.dx != dx || this.oldPosition.dy != dy){
+		
 			this.socket.emit('playerMoved', {
 				x: this.player.x,
 				y: this.player.y,
@@ -143,40 +164,52 @@ class Level extends Phaser.Scene {
 				startQueue: this.player.getData('startQueue'),
 				gunRotation: this.player.getByName('gun').rotation,
 				equip: this.player.getData('equip'),
-				flip: this.player.getData('flip'),
-				id: this.room_id
+				flip: this.player.getData('flip')
 			})
 
 			this.player.setData('startQueue', [])
 
-			// this.oldPosition = {
-			// 	x: this.player.x,
-			// 	y: this.player.y,
-			// 	dx: this.player.body.velocity.x,
-			// 	dy: this.player.body.velocity.y,
-			// 	start: this.player.getData('start'),
-			// 	flip: this.player.getData('flip')
-			// 	}
-			// }	
 			
 
 
 
 	}
 
+	drawLeaderboard(){
+		console.log('hello')
+		console.log(this.leaderboard.length)
+        for(let i = 0; i < this.leaderboard.length; i++){
+			console.log('bobos')
+			console.log(this.players.getChildren()[i])
+			let string =  this.players.getChildren()[i].getData('name') + '  ' + this.players.getChildren()[i].getData('kills')
+            this.leaderboard[i].setText(string)
+        }
+    }
+
+	addToLeaderboard(){
+		let length = this.players.getChildren().length
+		let y = length * 20 + 30
+		this.leaderboard.push(this.add.text(300, y, '').setScrollFactor(0, 0))
+	}
+
+
 	addPlayer(player){
 		this.player = new Player(this, player.x, player.y)
 		
 		this.playerController = new PlayerController(this.player, this.cursors, this)
+		this.player.setData('playerID', player.playerID)
+		this.player.setData('name', player.name)
+		this.players.add(this.player)
 
 		
 	}
 
 	addOtherPlayer(player){
-		const otherPlayer = new Opponent(this, player.x, player.y)
+		let otherPlayer = new Opponent(this, player.x, player.y)
 
 		otherPlayer.setData('playerID', player.playerID)
-		this.otherPlayers.add(otherPlayer)
+		otherPlayer.setData('name', player.name)
+		this.players.add(otherPlayer)
 	}
 
 	
